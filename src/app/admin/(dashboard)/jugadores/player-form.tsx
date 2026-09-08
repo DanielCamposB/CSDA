@@ -1,11 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
+import { Field, SelectField, TextAreaField } from "@/components/ui/field";
+import { groupTeamsByCategory } from "@/lib/teams";
 import type { Player, Team } from "@/lib/types";
 import type { FormState } from "./actions";
-
-const inputClass =
-  "w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-primary focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/30";
 
 export function PlayerForm({
   action,
@@ -17,66 +16,85 @@ export function PlayerForm({
   initial?: Player;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
+  const teamGroups = groupTeamsByCategory(teams);
 
   return (
     <form action={formAction} className="max-w-2xl space-y-4">
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Nombre completo</label>
-        <input name="full_name" required defaultValue={initial?.full_name} className={inputClass} />
-      </div>
+      <Field
+        label="Nombre completo"
+        name="full_name"
+        required
+        defaultValue={initial?.full_name}
+        placeholder="Ej: Juan Pérez"
+        hint="Obligatorio. Nombre y apellido del jugador."
+      />
 
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Equipo</label>
-        <select name="team_id" defaultValue={initial?.team_id ?? ""} className={inputClass}>
-          <option value="">Sin asignar</option>
-          {teams.map((team) => (
-            <option key={team.id} value={team.id}>
-              {team.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <SelectField
+        label="Equipo"
+        name="team_id"
+        defaultValue={initial?.team_id ?? ""}
+        hint="Opcional. A qué equipo o serie pertenece."
+      >
+        <option value="">Sin asignar</option>
+        {teamGroups.map(([category, group]) => (
+          <optgroup key={category} label={category}>
+            {group.map((team) => (
+              <option key={team.id} value={team.id}>
+                {team.name}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </SelectField>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-primary">Posición</label>
-          <input name="position" defaultValue={initial?.position ?? ""} className={inputClass} />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-primary">Número</label>
-          <input
-            name="jersey_number"
-            type="number"
-            min={0}
-            defaultValue={initial?.jersey_number ?? ""}
-            className={inputClass}
-          />
-        </div>
+        <Field
+          label="Posición"
+          name="position"
+          defaultValue={initial?.position ?? ""}
+          placeholder="Ej: Delantero"
+          hint="Opcional. Posición o rol en la cancha."
+        />
+        <Field
+          label="Número"
+          name="jersey_number"
+          type="number"
+          min={0}
+          defaultValue={initial?.jersey_number ?? ""}
+          placeholder="Ej: 10"
+          hint="Opcional. Número de camiseta."
+        />
       </div>
 
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Foto</label>
-        <input name="photo" type="file" accept="image/*" className={inputClass} />
-      </div>
+      <Field
+        label="Foto"
+        name="photo"
+        type="file"
+        accept="image/*"
+        hint="Opcional. Formatos JPG, PNG, WEBP o GIF, máximo 8MB."
+      />
 
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Biografía</label>
-        <textarea name="bio" rows={3} defaultValue={initial?.bio ?? ""} className={inputClass} />
-      </div>
+      <TextAreaField
+        label="Biografía"
+        name="bio"
+        rows={3}
+        defaultValue={initial?.bio ?? ""}
+        placeholder="Trayectoria, logros u otra información autorizada"
+        hint="Opcional. No incluyas RUT, dirección ni datos personales sensibles, especialmente de menores de edad."
+      />
 
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Visibilidad</label>
-        <select
-          name="is_published"
-          defaultValue={initial ? String(initial.is_published) : "true"}
-          className={inputClass}
-        >
-          <option value="true">Publicado</option>
-          <option value="false">Oculto</option>
-        </select>
-      </div>
+      <SelectField
+        label="Visibilidad"
+        name="is_published"
+        defaultValue={initial ? String(initial.is_published) : "true"}
+        hint="Si está oculto, el jugador no aparece en el sitio público."
+      >
+        <option value="true">Publicado</option>
+        <option value="false">Oculto</option>
+      </SelectField>
 
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+      <p className="text-xs text-primary/50">Los campos marcados con * son obligatorios.</p>
       <button
         type="submit"
         disabled={pending}

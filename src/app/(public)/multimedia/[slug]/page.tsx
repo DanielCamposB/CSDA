@@ -1,7 +1,7 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { EmptyState } from "@/components/ui/card";
 import { Section } from "@/components/ui/section";
+import { Lightbox } from "@/components/lightbox";
 import { getGalleryBySlug } from "@/lib/data";
 import type { Metadata } from "next";
 
@@ -30,18 +30,7 @@ export default async function GalleryDetailPage({
       {images.length === 0 ? (
         <EmptyState message="Esta galería todavía no tiene fotografías." />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {images.map((image) => (
-            <div key={image.id} className="relative h-56 w-full overflow-hidden rounded-lg">
-              <Image
-                src={image.image_url}
-                alt={image.caption ?? gallery.title}
-                fill
-                className="object-cover"
-              />
-            </div>
-          ))}
-        </div>
+        <Lightbox images={images} altPrefix={gallery.title} />
       )}
     </Section>
   );

@@ -11,6 +11,7 @@ const SponsorSchema = z.object({
   website_url: z.string().trim().url().optional().or(z.literal("")),
   tier: z.enum(["principal", "oficial", "colaborador"]),
   description: z.string().trim().max(500).optional().or(z.literal("")),
+  priority: z.string().optional().or(z.literal("")),
 });
 
 export type FormState = { error?: string };
@@ -39,6 +40,7 @@ export async function createSponsor(_prev: FormState, formData: FormData): Promi
     tier: parsed.data.tier,
     description: parsed.data.description || null,
     logo_url: logoUrl ?? null,
+    priority: parsed.data.priority ? Number(parsed.data.priority) : 0,
   });
   if (error) return { error: "No se pudo guardar." };
 
@@ -72,6 +74,7 @@ export async function updateSponsor(
       tier: parsed.data.tier,
       description: parsed.data.description || null,
       ...(logoUrl ? { logo_url: logoUrl } : {}),
+      priority: parsed.data.priority ? Number(parsed.data.priority) : 0,
     })
     .eq("id", id);
   if (error) return { error: "No se pudo actualizar." };

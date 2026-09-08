@@ -18,6 +18,7 @@ const NewsSchema = z.object({
   content: z.string().trim().min(10),
   category: z.string().trim().max(80).optional().or(z.literal("")),
   status: z.enum(["draft", "published"]),
+  priority: z.string().optional().or(z.literal("")),
 });
 
 export type FormState = { error?: string };
@@ -51,6 +52,7 @@ export async function createNews(_prev: FormState, formData: FormData): Promise<
     cover_image_url: coverImageUrl,
     published_at: parsed.data.status === "published" ? new Date().toISOString() : null,
     author_id: user?.id ?? null,
+    priority: parsed.data.priority ? Number(parsed.data.priority) : 0,
   });
 
   if (error) {
@@ -94,6 +96,7 @@ export async function updateNews(
       status: parsed.data.status,
       ...(coverImageUrl ? { cover_image_url: coverImageUrl } : {}),
       published_at: parsed.data.status === "published" ? new Date().toISOString() : null,
+      priority: parsed.data.priority ? Number(parsed.data.priority) : 0,
     })
     .eq("id", id);
 

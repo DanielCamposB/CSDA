@@ -1,6 +1,40 @@
 -- CSD Algarrobo — esquema inicial (Fase 0/1/2 del documento maestro)
+-- Este script es seguro de volver a ejecutar: primero limpia cualquier
+-- objeto de una corrida anterior y luego recrea todo desde cero.
 
 create extension if not exists "pgcrypto";
+
+-- ==========================================================================
+-- LIMPIEZA (para poder re-ejecutar este script sin errores)
+-- ==========================================================================
+
+drop trigger if exists on_auth_user_created on auth.users;
+drop function if exists public.handle_new_user();
+drop function if exists public.is_staff();
+
+drop table if exists public.contact_messages cascade;
+drop table if exists public.benefits cascade;
+drop table if exists public.sponsors cascade;
+drop table if exists public.gallery_images cascade;
+drop table if exists public.galleries cascade;
+drop table if exists public.events cascade;
+drop table if exists public.news cascade;
+drop table if exists public.club_figures cascade;
+drop table if exists public.directors cascade;
+drop table if exists public.trophies cascade;
+drop table if exists public.club_history cascade;
+drop table if exists public.matches cascade;
+drop table if exists public.players cascade;
+drop table if exists public.teams cascade;
+drop table if exists public.seasons cascade;
+drop table if exists public.sports cascade;
+drop table if exists public.profiles cascade;
+
+drop policy if exists "media_public_read" on storage.objects;
+drop policy if exists "media_staff_write" on storage.objects;
+drop policy if exists "media_staff_update" on storage.objects;
+drop policy if exists "media_staff_delete" on storage.objects;
+delete from storage.buckets where id = 'media';
 
 -- ==========================================================================
 -- PERFILES Y ROLES

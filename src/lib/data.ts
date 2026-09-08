@@ -6,7 +6,6 @@ import type {
   Director,
   Gallery,
   GalleryImage,
-  Match,
   NewsPost,
   Sponsor,
   Sport,
@@ -37,51 +36,71 @@ export async function getPlayersBySport(sportId: string) {
 
 export async function getTeamsBySport(sportId: string) {
   const supabase = await createClient();
-  const { data } = await supabase.from("teams").select("*").eq("sport_id", sportId);
+  const { data } = await supabase
+    .from("teams")
+    .select("*")
+    .eq("sport_id", sportId)
+    .order("category")
+    .order("sort_order")
+    .order("name");
   return data ?? [];
 }
 
-export async function getNextMatch(): Promise<Match | null> {
+export async function getUpcomingMatches(limit = 8) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("matches")
-    .select("*")
+    .select("*, match_teams(teams(name))")
     .in("status", ["programado", "confirmado", "reprogramado"])
     .gte("match_date", new Date().toISOString())
+    .order("priority", { ascending: false })
     .order("match_date", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  return data;
+    .limit(limit);
+  return data ?? [];
 }
 
-export async function getLastResult(): Promise<Match | null> {
+export async function getRecentResults(limit = 8) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("matches")
-    .select("*")
+    .select("*, match_teams(teams(name))")
     .eq("status", "finalizado")
+    .order("priority", { ascending: false })
     .order("match_date", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  return data;
+    .limit(limit);
+  return data ?? [];
 }
 
-export async function getMatchesBySport(sportId: string): Promise<Match[]> {
+export async function getMatchesBySport(sportId: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("matches")
-    .select("*")
+    .select("*, match_teams(teams(name))")
     .eq("sport_id", sportId)
     .order("match_date", { ascending: false });
   return data ?? [];
 }
 
-export async function getLatestNews(limit = 3): Promise<NewsPost[]> {
+export async function getLatestNews(limit = 9): Promise<NewsPost[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("news")
     .select("*")
     .eq("status", "published")
+    .order("priority", { ascending: false })
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  return data ?? [];
+}
+
+export async function getFeaturedNews(limit = 6): Promise<NewsPost[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("news")
+    .select("*")
+    .eq("status", "published")
+    .gt("priority", 0)
+    .order("priority", { ascending: false })
     .order("published_at", { ascending: false })
     .limit(limit);
   return data ?? [];
@@ -98,19 +117,20 @@ export async function getNewsBySlug(slug: string): Promise<NewsPost | null> {
   return data;
 }
 
-export async function getUpcomingEvents(limit = 4): Promise<ClubEvent[]> {
+export async function getUpcomingEvents(limit = 9): Promise<ClubEvent[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("events")
     .select("*")
     .eq("status", "published")
     .gte("event_date", new Date().toISOString())
+    .order("priority", { ascending: false })
     .order("event_date", { ascending: true })
     .limit(limit);
   return data ?? [];
 }
 
-export async function getFeaturedGalleries(limit = 3): Promise<Gallery[]> {
+export async function getFeaturedGalleries(limit = 9): Promise<Gallery[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("galleries")
@@ -138,9 +158,35 @@ export async function getGalleryBySlug(
   return { gallery, images: images ?? [] };
 }
 
+export async function getInstagramWallPhotos(limit = 40) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("gallery_images")
+    .select("id, image_url, caption, gallery_id, sort_order, galleries(slug, title)")
+    .order("gallery_id", { ascending: true })
+    .order("sort_order", { ascending: true })
+    .limit(limit);
+  return data ?? [];
+}
+
 export async function getSponsors(): Promise<Sponsor[]> {
   const supabase = await createClient();
-  const { data } = await supabase.from("sponsors").select("*").order("tier");
+  const { data } = await supabase
+    .from("sponsors")
+    .select("*")
+    .order("tier")
+    .order("priority", { ascending: false });
+  return data ?? [];
+}
+
+export async function getFeaturedSponsors(limit = 6): Promise<Sponsor[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("sponsors")
+    .select("*")
+    .gt("priority", 0)
+    .order("priority", { ascending: false })
+    .limit(limit);
   return data ?? [];
 }
 
@@ -149,7 +195,19 @@ export async function getBenefits() {
   const { data } = await supabase
     .from("benefits")
     .select("*, sponsors(name, logo_url)")
+    .order("priority", { ascending: false })
     .order("valid_until", { ascending: true, nullsFirst: false });
+  return data ?? [];
+}
+
+export async function getFeaturedBenefits(limit = 6) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("benefits")
+    .select("*, sponsors(name, logo_url)")
+    .gt("priority", 0)
+    .order("priority", { ascending: false })
+    .limit(limit);
   return data ?? [];
 }
 

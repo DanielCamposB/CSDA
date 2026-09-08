@@ -1,11 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
+import { Field, TextAreaField } from "@/components/ui/field";
 import type { Director } from "@/lib/types";
 import type { FormState } from "./actions";
-
-const inputClass =
-  "w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-primary focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/30";
 
 export function DirectorForm({
   action,
@@ -18,38 +16,55 @@ export function DirectorForm({
 
   return (
     <form action={formAction} className="max-w-2xl space-y-4">
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Nombre completo</label>
-        <input name="full_name" required defaultValue={initial?.full_name} className={inputClass} />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Cargo</label>
-        <input name="role_title" required defaultValue={initial?.role_title} className={inputClass} />
-      </div>
+      <Field
+        label="Nombre completo"
+        name="full_name"
+        required
+        defaultValue={initial?.full_name}
+        placeholder="Ej: María González"
+        hint="Obligatorio. Nombre y apellido."
+      />
+      <Field
+        label="Cargo"
+        name="role_title"
+        required
+        defaultValue={initial?.role_title}
+        placeholder="Ej: Presidenta"
+        hint="Obligatorio. El cargo que ocupa en la directiva."
+      />
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-primary">Período</label>
-          <input name="period" defaultValue={initial?.period ?? ""} className={inputClass} />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-primary">Orden</label>
-          <input
-            name="sort_order"
-            type="number"
-            defaultValue={initial?.sort_order ?? 0}
-            className={inputClass}
-          />
-        </div>
+        <Field
+          label="Período"
+          name="period"
+          defaultValue={initial?.period ?? ""}
+          placeholder="Ej: 2024 - 2026"
+          hint="Opcional. Período en el cargo."
+        />
+        <Field
+          label="Orden"
+          name="sort_order"
+          type="number"
+          defaultValue={initial?.sort_order ?? 0}
+          hint="Define el orden de aparición (menor número aparece primero)."
+        />
       </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Biografía</label>
-        <textarea name="bio" rows={3} defaultValue={initial?.bio ?? ""} className={inputClass} />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Fotografía</label>
-        <input name="photo" type="file" accept="image/*" className={inputClass} />
-      </div>
+      <TextAreaField
+        label="Biografía"
+        name="bio"
+        rows={3}
+        defaultValue={initial?.bio ?? ""}
+        placeholder="Trayectoria dentro del club"
+        hint="Opcional."
+      />
+      <Field
+        label="Fotografía"
+        name="photo"
+        type="file"
+        accept="image/*"
+        hint="Opcional. Formatos JPG, PNG, WEBP o GIF, máximo 8MB."
+      />
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+      <p className="text-xs text-primary/50">Los campos marcados con * son obligatorios.</p>
       <button
         type="submit"
         disabled={pending}

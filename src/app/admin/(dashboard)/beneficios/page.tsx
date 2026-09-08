@@ -13,12 +13,13 @@ export default async function AdminBenefitsPage() {
   return (
     <>
       <AdminPageHeader title="Beneficios" newHref="/admin/beneficios/new" />
-      <DataTable columns={["Título", "Auspiciador", "Vigente hasta"]}>
+      <DataTable columns={["Título", "Auspiciador", "Vigente hasta", "Prioridad"]}>
         {(benefits ?? []).map((benefit) => (
           <tr key={benefit.id}>
             <td className="px-4 py-3 font-medium text-primary">{benefit.title}</td>
             <td className="px-4 py-3 text-primary/60">{benefit.sponsors?.name ?? "—"}</td>
             <td className="px-4 py-3 text-primary/60">{benefit.valid_until ?? "—"}</td>
+            <td className="px-4 py-3 text-primary/60">{benefit.priority}</td>
             <RowActions
               editHref={`/admin/beneficios/${benefit.id}`}
               deleteAction={deleteBenefit.bind(null, benefit.id)}

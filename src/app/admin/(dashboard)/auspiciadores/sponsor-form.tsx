@@ -1,11 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
+import { Field, PriorityField, SelectField, TextAreaField } from "@/components/ui/field";
 import type { Sponsor } from "@/lib/types";
 import type { FormState } from "./actions";
-
-const inputClass =
-  "w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-primary focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/30";
 
 export function SponsorForm({
   action,
@@ -18,36 +16,51 @@ export function SponsorForm({
 
   return (
     <form action={formAction} className="max-w-2xl space-y-4">
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Nombre</label>
-        <input name="name" required defaultValue={initial?.name} className={inputClass} />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Sitio web</label>
-        <input name="website_url" type="url" defaultValue={initial?.website_url ?? ""} className={inputClass} />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Nivel</label>
-        <select name="tier" defaultValue={initial?.tier ?? "colaborador"} className={inputClass}>
-          <option value="principal">Principal</option>
-          <option value="oficial">Oficial</option>
-          <option value="colaborador">Colaborador</option>
-        </select>
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Descripción</label>
-        <textarea
-          name="description"
-          rows={3}
-          defaultValue={initial?.description ?? ""}
-          className={inputClass}
-        />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Logo</label>
-        <input name="logo" type="file" accept="image/*" className={inputClass} />
-      </div>
+      <Field
+        label="Nombre"
+        name="name"
+        required
+        defaultValue={initial?.name}
+        placeholder="Ej: Ferretería Algarrobo"
+        hint="Obligatorio. Nombre de la empresa o comercio."
+      />
+      <Field
+        label="Sitio web"
+        name="website_url"
+        type="url"
+        defaultValue={initial?.website_url ?? ""}
+        placeholder="https://ejemplo.cl"
+        hint="Opcional. Debe empezar con http:// o https://."
+      />
+      <SelectField
+        label="Nivel"
+        name="tier"
+        defaultValue={initial?.tier ?? "colaborador"}
+        hint="Define en qué sección aparece: principal, oficial o colaborador."
+      >
+        <option value="principal">Principal</option>
+        <option value="oficial">Oficial</option>
+        <option value="colaborador">Colaborador</option>
+      </SelectField>
+      <TextAreaField
+        label="Descripción"
+        name="description"
+        rows={3}
+        defaultValue={initial?.description ?? ""}
+        placeholder="Breve descripción del auspiciador"
+        hint="Opcional."
+      />
+      <Field
+        label="Logo"
+        name="logo"
+        type="file"
+        accept="image/*"
+        hint="Opcional. Formatos JPG, PNG, WEBP o GIF, máximo 8MB."
+      />
+
+      <PriorityField defaultValue={initial?.priority} />
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+      <p className="text-xs text-primary/50">Los campos marcados con * son obligatorios.</p>
       <button
         type="submit"
         disabled={pending}

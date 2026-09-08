@@ -1,11 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
+import { Field, TextAreaField } from "@/components/ui/field";
 import type { ClubHistoryEntry } from "@/lib/types";
 import type { FormState } from "./actions";
-
-const inputClass =
-  "w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-primary focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/30";
 
 export function HistoryForm({
   action,
@@ -18,39 +16,48 @@ export function HistoryForm({
 
   return (
     <form action={formAction} className="max-w-2xl space-y-4">
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Título del hito</label>
-        <input name="title" required defaultValue={initial?.title} className={inputClass} />
-      </div>
+      <Field
+        label="Título del hito"
+        name="title"
+        required
+        defaultValue={initial?.title}
+        placeholder="Ej: Fundación del club"
+        hint="Obligatorio. Nombre del hito histórico."
+      />
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-primary">Año</label>
-          <input name="year" type="number" defaultValue={initial?.year ?? ""} className={inputClass} />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-primary">Orden</label>
-          <input
-            name="sort_order"
-            type="number"
-            defaultValue={initial?.sort_order ?? 0}
-            className={inputClass}
-          />
-        </div>
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Descripción</label>
-        <textarea
-          name="description"
-          rows={4}
-          defaultValue={initial?.description ?? ""}
-          className={inputClass}
+        <Field
+          label="Año"
+          name="year"
+          type="number"
+          defaultValue={initial?.year ?? ""}
+          placeholder="Ej: 1938"
+          hint="Opcional. Año en que ocurrió."
+        />
+        <Field
+          label="Orden"
+          name="sort_order"
+          type="number"
+          defaultValue={initial?.sort_order ?? 0}
+          hint="Define el orden en la línea de tiempo (menor número aparece primero)."
         />
       </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Fotografía</label>
-        <input name="image" type="file" accept="image/*" className={inputClass} />
-      </div>
+      <TextAreaField
+        label="Descripción"
+        name="description"
+        rows={4}
+        defaultValue={initial?.description ?? ""}
+        placeholder="Cuenta la historia de este hito"
+        hint="Opcional."
+      />
+      <Field
+        label="Fotografía"
+        name="image"
+        type="file"
+        accept="image/*"
+        hint="Opcional. Formatos JPG, PNG, WEBP o GIF, máximo 8MB."
+      />
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+      <p className="text-xs text-primary/50">Los campos marcados con * son obligatorios.</p>
       <button
         type="submit"
         disabled={pending}

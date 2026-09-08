@@ -13,7 +13,7 @@ export default async function AdminEventsPage() {
   return (
     <>
       <AdminPageHeader title="Eventos" newHref="/admin/eventos/new" />
-      <DataTable columns={["Título", "Fecha", "Estado"]}>
+      <DataTable columns={["Título", "Fecha", "Estado", "Prioridad"]}>
         {(events ?? []).map((event) => (
           <tr key={event.id}>
             <td className="px-4 py-3 font-medium text-primary">{event.title}</td>
@@ -31,6 +31,7 @@ export default async function AdminEventsPage() {
                 {event.status === "published" ? "Publicado" : "Borrador"}
               </span>
             </td>
+            <td className="px-4 py-3 text-primary/60">{event.priority}</td>
             <RowActions
               editHref={`/admin/eventos/${event.id}`}
               deleteAction={deleteEvent.bind(null, event.id)}

@@ -1,11 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
+import { Field, SelectField } from "@/components/ui/field";
 import type { Sport } from "@/lib/types";
 import type { FormState } from "./actions";
-
-const inputClass =
-  "w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-primary focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/30";
 
 export function TeamForm({
   action,
@@ -18,28 +16,45 @@ export function TeamForm({
 
   return (
     <form action={formAction} className="max-w-md space-y-4">
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Deporte</label>
-        <select name="sport_id" required defaultValue="" className={inputClass}>
-          <option value="" disabled>
-            Selecciona un deporte
+      <SelectField
+        label="Deporte"
+        name="sport_id"
+        required
+        defaultValue=""
+        hint="Obligatorio. La rama deportiva a la que pertenece este equipo/serie."
+      >
+        <option value="" disabled>
+          Selecciona un deporte
+        </option>
+        {sports.map((sport) => (
+          <option key={sport.id} value={sport.id}>
+            {sport.name}
           </option>
-          {sports.map((sport) => (
-            <option key={sport.id} value={sport.id}>
-              {sport.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Nombre</label>
-        <input name="name" required placeholder="Primer equipo, Serie Sub-15…" className={inputClass} />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Categoría</label>
-        <input name="category" className={inputClass} />
-      </div>
+        ))}
+      </SelectField>
+      <Field
+        label="Nombre"
+        name="name"
+        required
+        placeholder="Primer equipo, Serie Sub-15…"
+        hint="Obligatorio. Cómo se llama este equipo o serie."
+      />
+      <Field
+        label="Categoría"
+        name="category"
+        placeholder="Ej: Masculino, Femenino, Escuela"
+        hint="Opcional. Se usa para agrupar por género/rama en los selectores (ej: Masculino, Femenino, Escuela)."
+      />
+      <Field
+        label="Orden"
+        name="sort_order"
+        type="number"
+        min={0}
+        defaultValue={0}
+        hint="Define en qué posición aparece dentro de su categoría (menor número aparece primero)."
+      />
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+      <p className="text-xs text-primary/50">Los campos marcados con * son obligatorios.</p>
       <button
         type="submit"
         disabled={pending}

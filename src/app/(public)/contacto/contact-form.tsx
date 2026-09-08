@@ -2,12 +2,10 @@
 
 import Script from "next/script";
 import { useActionState } from "react";
+import { Field, SelectField, TextAreaField } from "@/components/ui/field";
 import { submitContactMessage, type ContactFormState } from "./actions";
 
 const initialState: ContactFormState = { ok: false };
-
-const inputClass =
-  "w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-primary focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/30";
 
 export function ContactForm() {
   const [state, formAction, pending] = useActionState(submitContactMessage, initialState);
@@ -27,59 +25,47 @@ export function ContactForm() {
         <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
       )}
 
-      <div>
-        <label htmlFor="name" className="mb-1 block text-sm font-medium text-primary">
-          Nombre
-        </label>
-        <input
-          id="name"
-          name="name"
-          autoComplete="name"
-          required
-          maxLength={120}
-          className={inputClass}
-        />
-      </div>
+      <Field
+        label="Nombre"
+        name="name"
+        autoComplete="name"
+        required
+        maxLength={120}
+        placeholder="Tu nombre completo"
+        hint="Obligatorio. Escribe tu nombre completo (mínimo 2 caracteres)."
+      />
 
-      <div>
-        <label htmlFor="email" className="mb-1 block text-sm font-medium text-primary">
-          Correo
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          required
-          maxLength={200}
-          className={inputClass}
-        />
-      </div>
+      <Field
+        label="Correo"
+        name="email"
+        type="email"
+        autoComplete="email"
+        required
+        maxLength={200}
+        placeholder="nombre@correo.com"
+        hint="Obligatorio. Usa un correo válido para poder responderte."
+      />
 
-      <div>
-        <label htmlFor="messageType" className="mb-1 block text-sm font-medium text-primary">
-          Tipo de consulta
-        </label>
-        <select id="messageType" name="messageType" className={inputClass} defaultValue="consulta">
-          <option value="consulta">Consulta</option>
-          <option value="sugerencia">Sugerencia</option>
-        </select>
-      </div>
+      <SelectField
+        label="Tipo de consulta"
+        name="messageType"
+        defaultValue="consulta"
+        hint="Elige si es una consulta general o una sugerencia para el club."
+      >
+        <option value="consulta">Consulta</option>
+        <option value="sugerencia">Sugerencia</option>
+      </SelectField>
 
-      <div>
-        <label htmlFor="message" className="mb-1 block text-sm font-medium text-primary">
-          Mensaje
-        </label>
-        <textarea
-          id="message"
-          name="message"
-          required
-          minLength={10}
-          maxLength={2000}
-          rows={5}
-          className={inputClass}
-        />
-      </div>
+      <TextAreaField
+        label="Mensaje"
+        name="message"
+        required
+        minLength={10}
+        maxLength={2000}
+        rows={5}
+        placeholder="Escribe aquí tu consulta o sugerencia (mínimo 10 caracteres)"
+        hint="Obligatorio. Entre 10 y 2000 caracteres."
+      />
 
       {/* Honeypot: invisible para personas, los bots suelen completarlo igual */}
       <div className="hidden" aria-hidden="true">
@@ -90,6 +76,8 @@ export function ContactForm() {
       {siteKey && <div className="cf-turnstile" data-sitekey={siteKey} />}
 
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+
+      <p className="text-xs text-primary/50">Los campos marcados con * son obligatorios.</p>
 
       <button
         type="submit"
