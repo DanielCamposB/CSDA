@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140" width="120" height="140">
+  <path d="M60 4 L112 20 V64 C112 100 90 124 60 136 C30 124 8 100 8 64 V20 Z"
+        fill="#f7f4ec" stroke="#141414" stroke-width="4"/>
+  <path d="M60 12 L104 26 V64 C104 95 85 116 60 127 C35 116 16 95 16 64 V26 Z"
+        fill="none" stroke="#c7a23a" stroke-width="2.5"/>
+  <text x="60" y="58" text-anchor="middle" font-family="Georgia, serif" font-weight="700"
+        font-size="22" fill="#141414">CSD</text>
+  <path d="M60 66 V96 M46 78 H74 M46 96 C46 104 74 104 74 96" stroke="#c7a23a" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M18 60 C10 75 12 95 26 108" stroke="#4b6b3a" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M102 60 C110 75 108 95 94 108" stroke="#4b6b3a" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <rect x="24" y="110" width="72" height="16" rx="2" fill="#f7f4ec" stroke="#141414" stroke-width="2"/>
+  <text x="60" y="122" text-anchor="middle" font-family="Georgia, serif" font-weight="700"
+        font-size="9" fill="#141414" letter-spacing="1">ALGARROBO</text>
+</svg>
