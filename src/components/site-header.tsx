@@ -14,7 +14,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-black/10 bg-cream/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
-          <Image src="/logo-placeholder.svg" alt="Escudo CSD Algarrobo" width={42} height={49} priority />
+          <Image src="/logo.jpg" alt="Escudo CSD Algarrobo" width={44} height={44} priority />
           <span className="font-serif text-lg font-bold tracking-wide text-primary">
             C.S.D. ALGARROBO
           </span>

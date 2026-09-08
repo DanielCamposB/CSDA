@@ -2,15 +2,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card, EmptyState } from "@/components/ui/card";
 import { Section } from "@/components/ui/section";
+import { RotatingShowcase } from "@/components/rotating-showcase";
+import { chunkItems } from "@/lib/chunk";
 import {
   getFeaturedGalleries,
-  getLastResult,
+  getInstagramWallPhotos,
   getLatestNews,
-  getNextMatch,
+  getRecentResults,
   getSponsors,
   getUpcomingEvents,
+  getUpcomingMatches,
 } from "@/lib/data";
+import type { ClubEvent, Gallery, Match, NewsPost } from "@/lib/types";
 import { SPORTS_CATALOG } from "@/lib/sports";
+import { SOCIAL_LINKS } from "@/lib/social";
+import { RecentPhotosBanner } from "@/components/recent-photos-banner";
+import { matchTeamNames } from "@/lib/teams";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("es-CL", {
@@ -24,21 +31,127 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
 }
 
+type MatchWithTeams = Match & { match_teams?: { teams: { name: string } | null }[] | null };
+
+function MatchCard({ match }: { match: MatchWithTeams }) {
+  const teamNames = matchTeamNames(match);
+  return (
+    <Card className="flex flex-col items-center gap-3 p-8 text-center">
+      {teamNames.length > 0 && (
+        <span className="text-xs font-semibold uppercase tracking-wide text-secondary">
+          {teamNames.join(" · ")}
+        </span>
+      )}
+      <div className="flex items-center gap-6 text-xl font-bold text-primary">
+        <span>{match.is_home ? "Algarrobo" : match.rival_name}</span>
+        <span className="text-secondary">VS</span>
+        <span>{match.is_home ? match.rival_name : "Algarrobo"}</span>
+      </div>
+      <p className="text-primary/70">
+        {formatDate(match.match_date)} · {formatTime(match.match_date)}
+        {match.location ? ` · ${match.location}` : ""}
+      </p>
+      {match.competition && <p className="text-sm text-primary/50">{match.competition}</p>}
+    </Card>
+  );
+}
+
+function ResultCard({ match }: { match: MatchWithTeams }) {
+  const teamNames = matchTeamNames(match);
+  return (
+    <Card className="flex flex-col items-center gap-2 p-8 text-center">
+      {teamNames.length > 0 && (
+        <span className="text-xs font-semibold uppercase tracking-wide text-secondary">
+          {teamNames.join(" · ")}
+        </span>
+      )}
+      <div className="text-2xl font-bold text-primary">
+        {match.is_home ? "Algarrobo" : match.rival_name}{" "}
+        {match.is_home ? match.home_score : match.away_score} —{" "}
+        {match.is_home ? match.away_score : match.home_score}{" "}
+        {match.is_home ? match.rival_name : "Algarrobo"}
+      </div>
+      <p className="text-primary/70">{formatDate(match.match_date)}</p>
+    </Card>
+  );
+}
+
+function NewsCard({ post }: { post: NewsPost }) {
+  return (
+    <Link href={`/actualidad/${post.slug}`}>
+      <Card className="h-full overflow-hidden">
+        {post.cover_image_url && (
+          <div className="relative h-44 w-full">
+            <Image src={post.cover_image_url} alt={post.title} fill className="object-cover" />
+          </div>
+        )}
+        <div className="p-4">
+          <h3 className="font-semibold text-primary">{post.title}</h3>
+          {post.excerpt && <p className="mt-2 line-clamp-2 text-sm text-primary/60">{post.excerpt}</p>}
+        </div>
+      </Card>
+    </Link>
+  );
+}
+
+function EventCard({ event }: { event: ClubEvent }) {
+  return (
+    <Card className="p-4">
+      <p className="text-sm font-semibold text-secondary">{formatDate(event.event_date)}</p>
+      <h3 className="mt-1 font-semibold text-primary">{event.title}</h3>
+      {event.location && <p className="mt-1 text-sm text-primary/60">{event.location}</p>}
+    </Card>
+  );
+}
+
+function GalleryCard({ gallery }: { gallery: Gallery }) {
+  return (
+    <Link href={`/multimedia/${gallery.slug}`}>
+      <Card className="overflow-hidden">
+        {gallery.cover_image_url && (
+          <div className="relative h-44 w-full">
+            <Image
+              src={gallery.cover_image_url}
+              alt={gallery.title}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
+        <div className="p-4">
+          <h3 className="font-semibold text-primary">{gallery.title}</h3>
+        </div>
+      </Card>
+    </Link>
+  );
+}
+
 export default async function HomePage() {
-  const [nextMatch, lastResult, news, events, galleries, sponsors] = await Promise.all([
-    getNextMatch(),
-    getLastResult(),
-    getLatestNews(3),
-    getUpcomingEvents(3),
-    getFeaturedGalleries(3),
+  const [matches, results, news, events, galleries, sponsors, wallPhotos] = await Promise.all([
+    getUpcomingMatches(8),
+    getRecentResults(8),
+    getLatestNews(9),
+    getUpcomingEvents(9),
+    getFeaturedGalleries(9),
     getSponsors(),
+    getInstagramWallPhotos(40),
   ]);
+
+  const bannerPhotos = wallPhotos.map((photo) => {
+    const gallery = Array.isArray(photo.galleries) ? photo.galleries[0] : photo.galleries;
+    return {
+      id: photo.id,
+      image_url: photo.image_url,
+      caption: photo.caption,
+      href: gallery ? `/multimedia/${gallery.slug}` : "/multimedia",
+    };
+  });
 
   return (
     <>
       <section className="relative overflow-hidden bg-primary text-cream">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 py-20 text-center">
-          <Image src="/logo-placeholder.svg" alt="Escudo CSD Algarrobo" width={96} height={112} />
+          <Image src="/logo.jpg" alt="Escudo CSD Algarrobo" width={100} height={100} />
           <h1 className="font-serif text-3xl font-extrabold tracking-wide sm:text-5xl">
             CLUB SOCIAL Y DEPORTIVO ALGARROBO
           </h1>
@@ -63,38 +176,29 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <Section title="Próximo partido">
-        {nextMatch ? (
-          <Card className="flex flex-col items-center gap-3 p-8 text-center">
-            <div className="flex items-center gap-6 text-xl font-bold text-primary">
-              <span>{nextMatch.is_home ? "Algarrobo" : nextMatch.rival_name}</span>
-              <span className="text-secondary">VS</span>
-              <span>{nextMatch.is_home ? nextMatch.rival_name : "Algarrobo"}</span>
-            </div>
-            <p className="text-primary/70">
-              {formatDate(nextMatch.match_date)} · {formatTime(nextMatch.match_date)}
-              {nextMatch.location ? ` · ${nextMatch.location}` : ""}
-            </p>
-            {nextMatch.competition && (
-              <p className="text-sm text-primary/50">{nextMatch.competition}</p>
-            )}
-          </Card>
+      <RecentPhotosBanner photos={bannerPhotos} />
+
+      <Section title="Próximos partidos">
+        {matches.length > 0 ? (
+          <RotatingShowcase
+            intervalMs={4500}
+            pages={matches.map((match) => (
+              <MatchCard key={match.id} match={match} />
+            ))}
+          />
         ) : (
           <EmptyState message="Aún no hay partidos programados." />
         )}
       </Section>
 
-      <Section title="Último resultado" className="bg-black/5">
-        {lastResult ? (
-          <Card className="flex flex-col items-center gap-2 p-8 text-center">
-            <div className="text-2xl font-bold text-primary">
-              {lastResult.is_home ? "Algarrobo" : lastResult.rival_name}{" "}
-              {lastResult.is_home ? lastResult.home_score : lastResult.away_score} —{" "}
-              {lastResult.is_home ? lastResult.away_score : lastResult.home_score}{" "}
-              {lastResult.is_home ? lastResult.rival_name : "Algarrobo"}
-            </div>
-            <p className="text-primary/70">{formatDate(lastResult.match_date)}</p>
-          </Card>
+      <Section title="Últimos resultados" className="bg-black/5">
+        {results.length > 0 ? (
+          <RotatingShowcase
+            intervalMs={4500}
+            pages={results.map((match) => (
+              <ResultCard key={match.id} match={match} />
+            ))}
+          />
         ) : (
           <EmptyState message="Aún no hay resultados registrados." />
         )}
@@ -102,30 +206,16 @@ export default async function HomePage() {
 
       <Section title="Últimas noticias" subtitle="Lo que está pasando en el club">
         {news.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {news.map((post) => (
-              <Link key={post.id} href={`/actualidad/${post.slug}`}>
-                <Card className="h-full overflow-hidden">
-                  {post.cover_image_url && (
-                    <div className="relative h-44 w-full">
-                      <Image
-                        src={post.cover_image_url}
-                        alt={post.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-primary">{post.title}</h3>
-                    {post.excerpt && (
-                      <p className="mt-2 line-clamp-2 text-sm text-primary/60">{post.excerpt}</p>
-                    )}
-                  </div>
-                </Card>
-              </Link>
+          <RotatingShowcase
+            intervalMs={5000}
+            pages={chunkItems(news, 3).map((group, i) => (
+              <div key={i} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {group.map((post) => (
+                  <NewsCard key={post.id} post={post} />
+                ))}
+              </div>
             ))}
-          </div>
+          />
         ) : (
           <EmptyState message="Todavía no se han publicado noticias." />
         )}
@@ -133,15 +223,16 @@ export default async function HomePage() {
 
       <Section title="Próximos eventos" className="bg-black/5">
         {events.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {events.map((event) => (
-              <Card key={event.id} className="p-4">
-                <p className="text-sm font-semibold text-secondary">{formatDate(event.event_date)}</p>
-                <h3 className="mt-1 font-semibold text-primary">{event.title}</h3>
-                {event.location && <p className="mt-1 text-sm text-primary/60">{event.location}</p>}
-              </Card>
+          <RotatingShowcase
+            intervalMs={5000}
+            pages={chunkItems(events, 3).map((group, i) => (
+              <div key={i} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {group.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
             ))}
-          </div>
+          />
         ) : (
           <EmptyState message="No hay eventos próximos por ahora." />
         )}
@@ -161,27 +252,16 @@ export default async function HomePage() {
 
       <Section title="Galería destacada" className="bg-black/5">
         {galleries.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {galleries.map((gallery) => (
-              <Link key={gallery.id} href={`/multimedia/${gallery.slug}`}>
-                <Card className="overflow-hidden">
-                  {gallery.cover_image_url && (
-                    <div className="relative h-44 w-full">
-                      <Image
-                        src={gallery.cover_image_url}
-                        alt={gallery.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-primary">{gallery.title}</h3>
-                  </div>
-                </Card>
-              </Link>
+          <RotatingShowcase
+            intervalMs={5000}
+            pages={chunkItems(galleries, 3).map((group, i) => (
+              <div key={i} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {group.map((gallery) => (
+                  <GalleryCard key={gallery.id} gallery={gallery} />
+                ))}
+              </div>
             ))}
-          </div>
+          />
         ) : (
           <EmptyState message="Pronto encontrarás fotografías del club aquí." />
         )}
@@ -224,13 +304,16 @@ export default async function HomePage() {
 
       <Section title="Síguenos en redes">
         <div id="redes" className="flex flex-wrap justify-center gap-4">
-          {["Instagram", "Facebook", "YouTube", "TikTok"].map((network) => (
-            <span
-              key={network}
-              className="rounded-full border border-primary/20 px-5 py-2 text-sm font-medium text-primary"
+          {SOCIAL_LINKS.map((social) => (
+            <a
+              key={social.href}
+              href={social.href}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="rounded-full border border-primary/20 px-5 py-2 text-sm font-medium text-primary transition-colors hover:border-secondary hover:text-secondary"
             >
-              {network}
-            </span>
+              {social.label}
+            </a>
           ))}
         </div>
       </Section>

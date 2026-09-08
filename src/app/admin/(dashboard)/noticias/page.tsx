@@ -8,12 +8,13 @@ export default async function AdminNewsPage() {
   const { data: news } = await supabase
     .from("news")
     .select("*")
+    .order("priority", { ascending: false })
     .order("created_at", { ascending: false });
 
   return (
     <>
       <AdminPageHeader title="Noticias" newHref="/admin/noticias/new" />
-      <DataTable columns={["Título", "Estado", "Categoría"]}>
+      <DataTable columns={["Título", "Estado", "Categoría", "Prioridad"]}>
         {(news ?? []).map((post) => (
           <tr key={post.id}>
             <td className="px-4 py-3 font-medium text-primary">{post.title}</td>
@@ -29,6 +30,7 @@ export default async function AdminNewsPage() {
               </span>
             </td>
             <td className="px-4 py-3 text-primary/60">{post.category ?? "—"}</td>
+            <td className="px-4 py-3 text-primary/60">{post.priority}</td>
             <RowActions
               editHref={`/admin/noticias/${post.id}`}
               deleteAction={deleteNews.bind(null, post.id)}

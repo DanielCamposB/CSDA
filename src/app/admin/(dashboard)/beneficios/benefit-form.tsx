@@ -1,11 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
+import { Field, PriorityField, SelectField, TextAreaField } from "@/components/ui/field";
 import type { Benefit, Sponsor } from "@/lib/types";
 import type { FormState } from "./actions";
-
-const inputClass =
-  "w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-primary focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/30";
 
 export function BenefitForm({
   action,
@@ -20,49 +18,54 @@ export function BenefitForm({
 
   return (
     <form action={formAction} className="max-w-2xl space-y-4">
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Título del beneficio</label>
-        <input name="title" required defaultValue={initial?.title} className={inputClass} />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Auspiciador asociado</label>
-        <select name="sponsor_id" defaultValue={initial?.sponsor_id ?? ""} className={inputClass}>
-          <option value="">Sin asociar</option>
-          {sponsors.map((sponsor) => (
-            <option key={sponsor.id} value={sponsor.id}>
-              {sponsor.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Descripción</label>
-        <textarea
-          name="description"
-          rows={3}
-          defaultValue={initial?.description ?? ""}
-          className={inputClass}
-        />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Condiciones</label>
-        <textarea
-          name="conditions"
-          rows={2}
-          defaultValue={initial?.conditions ?? ""}
-          className={inputClass}
-        />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm font-medium text-primary">Vigente hasta</label>
-        <input
-          name="valid_until"
-          type="date"
-          defaultValue={initial?.valid_until ?? ""}
-          className={inputClass}
-        />
-      </div>
+      <Field
+        label="Título del beneficio"
+        name="title"
+        required
+        defaultValue={initial?.title}
+        placeholder="Ej: 15% de descuento para socios"
+        hint="Obligatorio. El nombre del beneficio."
+      />
+      <SelectField
+        label="Auspiciador asociado"
+        name="sponsor_id"
+        defaultValue={initial?.sponsor_id ?? ""}
+        hint="Opcional. Elige la empresa auspiciadora que ofrece este beneficio, para mostrar su nombre junto al beneficio. Déjalo vacío si es un beneficio general del club."
+      >
+        <option value="">Sin asociar</option>
+        {sponsors.map((sponsor) => (
+          <option key={sponsor.id} value={sponsor.id}>
+            {sponsor.name}
+          </option>
+        ))}
+      </SelectField>
+      <TextAreaField
+        label="Descripción"
+        name="description"
+        rows={3}
+        defaultValue={initial?.description ?? ""}
+        placeholder="En qué consiste el beneficio"
+        hint="Opcional."
+      />
+      <TextAreaField
+        label="Condiciones"
+        name="conditions"
+        rows={2}
+        defaultValue={initial?.conditions ?? ""}
+        placeholder="Ej: Presentar carnet de socio vigente"
+        hint="Opcional. Requisitos para acceder al beneficio."
+      />
+      <Field
+        label="Vigente hasta"
+        name="valid_until"
+        type="date"
+        defaultValue={initial?.valid_until ?? ""}
+        hint="Opcional. Fecha en que deja de estar disponible."
+      />
+
+      <PriorityField defaultValue={initial?.priority} />
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+      <p className="text-xs text-primary/50">Los campos marcados con * son obligatorios.</p>
       <button
         type="submit"
         disabled={pending}

@@ -4,6 +4,7 @@ import { Card, EmptyState } from "@/components/ui/card";
 import { Section } from "@/components/ui/section";
 import { getMatchesBySport, getPlayersBySport, getSportBySlug, getTeamsBySport } from "@/lib/data";
 import { SPORTS_CATALOG } from "@/lib/sports";
+import { matchTeamNames } from "@/lib/teams";
 import type { Metadata } from "next";
 
 export function generateStaticParams() {
@@ -65,6 +66,11 @@ export default async function SportPage({ params }: { params: Promise<{ slug: st
           <div className="grid gap-3 sm:grid-cols-2">
             {upcoming.map((match) => (
               <Card key={match.id} className="p-4">
+                {matchTeamNames(match).length > 0 && (
+                  <span className="text-xs font-semibold uppercase tracking-wide text-secondary">
+                    {matchTeamNames(match).join(" · ")}
+                  </span>
+                )}
                 <p className="font-semibold text-primary">
                   {match.is_home ? "Algarrobo" : match.rival_name} vs{" "}
                   {match.is_home ? match.rival_name : "Algarrobo"}
@@ -86,6 +92,11 @@ export default async function SportPage({ params }: { params: Promise<{ slug: st
           <div className="grid gap-3 sm:grid-cols-2">
             {played.map((match) => (
               <Card key={match.id} className="p-4">
+                {matchTeamNames(match).length > 0 && (
+                  <span className="text-xs font-semibold uppercase tracking-wide text-secondary">
+                    {matchTeamNames(match).join(" · ")}
+                  </span>
+                )}
                 <p className="font-semibold text-primary">
                   {match.is_home ? "Algarrobo" : match.rival_name}{" "}
                   {match.is_home ? match.home_score : match.away_score} —{" "}

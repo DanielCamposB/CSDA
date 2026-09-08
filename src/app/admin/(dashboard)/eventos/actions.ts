@@ -12,6 +12,7 @@ const EventSchema = z.object({
   event_date: z.string().trim().min(1),
   location: z.string().trim().max(200).optional().or(z.literal("")),
   status: z.enum(["draft", "published"]),
+  priority: z.string().optional().or(z.literal("")),
 });
 
 export type FormState = { error?: string };
@@ -43,6 +44,7 @@ export async function createEvent(_prev: FormState, formData: FormData): Promise
     location: parsed.data.location || null,
     status: parsed.data.status,
     cover_image_url: coverImageUrl ?? null,
+    priority: parsed.data.priority ? Number(parsed.data.priority) : 0,
   });
   if (error) return { error: "No se pudo guardar." };
 
@@ -76,6 +78,7 @@ export async function updateEvent(
       location: parsed.data.location || null,
       status: parsed.data.status,
       ...(coverImageUrl ? { cover_image_url: coverImageUrl } : {}),
+      priority: parsed.data.priority ? Number(parsed.data.priority) : 0,
     })
     .eq("id", id);
   if (error) return { error: "No se pudo actualizar." };

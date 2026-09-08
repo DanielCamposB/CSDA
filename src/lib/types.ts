@@ -23,6 +23,7 @@ export type Team = {
   season_id: string | null;
   name: string;
   category: string | null;
+  sort_order: number;
 };
 
 export type Player = {
@@ -46,7 +47,6 @@ export type MatchStatus =
 export type Match = {
   id: string;
   sport_id: string;
-  team_id: string | null;
   is_home: boolean;
   rival_name: string;
   competition: string | null;
@@ -56,6 +56,7 @@ export type Match = {
   home_score: number | null;
   away_score: number | null;
   notes: string | null;
+  priority: number;
 };
 
 export type ClubHistoryEntry = {
@@ -116,6 +117,7 @@ export type NewsPost = {
   published_at: string | null;
   author_id: string | null;
   created_at: string;
+  priority: number;
 };
 
 export type ClubEvent = {
@@ -126,6 +128,7 @@ export type ClubEvent = {
   location: string | null;
   cover_image_url: string | null;
   status: "draft" | "published";
+  priority: number;
 };
 
 export type Gallery = {
@@ -155,6 +158,7 @@ export type Sponsor = {
   website_url: string | null;
   tier: SponsorTier;
   description: string | null;
+  priority: number;
 };
 
 export type Benefit = {
@@ -164,6 +168,7 @@ export type Benefit = {
   description: string | null;
   conditions: string | null;
   valid_until: string | null;
+  priority: number;
 };
 
 export type ContactMessage = {

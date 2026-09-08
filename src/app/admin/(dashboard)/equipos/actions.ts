@@ -9,6 +9,7 @@ const TeamSchema = z.object({
   sport_id: z.string().uuid(),
   name: z.string().trim().min(1).max(120),
   category: z.string().trim().max(80).optional().or(z.literal("")),
+  sort_order: z.string().optional().or(z.literal("")),
 });
 
 export type FormState = { error?: string };
@@ -22,6 +23,7 @@ export async function createTeam(_prev: FormState, formData: FormData): Promise<
     sport_id: parsed.data.sport_id,
     name: parsed.data.name,
     category: parsed.data.category || null,
+    sort_order: parsed.data.sort_order ? Number(parsed.data.sort_order) : 0,
   });
   if (error) return { error: "No se pudo guardar." };
 

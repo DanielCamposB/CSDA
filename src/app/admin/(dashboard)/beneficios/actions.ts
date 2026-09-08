@@ -11,6 +11,7 @@ const BenefitSchema = z.object({
   description: z.string().trim().max(500).optional().or(z.literal("")),
   conditions: z.string().trim().max(300).optional().or(z.literal("")),
   valid_until: z.string().optional().or(z.literal("")),
+  priority: z.string().optional().or(z.literal("")),
 });
 
 export type FormState = { error?: string };
@@ -26,6 +27,7 @@ export async function createBenefit(_prev: FormState, formData: FormData): Promi
     description: parsed.data.description || null,
     conditions: parsed.data.conditions || null,
     valid_until: parsed.data.valid_until || null,
+    priority: parsed.data.priority ? Number(parsed.data.priority) : 0,
   });
   if (error) return { error: "No se pudo guardar." };
 
@@ -51,6 +53,7 @@ export async function updateBenefit(
       description: parsed.data.description || null,
       conditions: parsed.data.conditions || null,
       valid_until: parsed.data.valid_until || null,
+      priority: parsed.data.priority ? Number(parsed.data.priority) : 0,
     })
     .eq("id", id);
   if (error) return { error: "No se pudo actualizar." };
